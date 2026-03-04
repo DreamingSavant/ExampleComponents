@@ -1,0 +1,348 @@
+import SwiftUI
+
+struct Day3ControlsView: View {
+    @Environment(AppViewModel.self) private var appVM
+
+    @State private var toggleValue = true
+    @State private var sliderValue: Double = 50
+    @State private var stepperValue = 3
+    @State private var pickerSelection = 0
+    @State private var dateValue = Date()
+    @State private var colorValue: Color = .blue
+    @State private var textFieldValue = ""
+    @State private var textEditorValue = "Type here..."
+    @State private var secureFieldValue = ""
+    @State private var buttonTapCount = 0
+    @State private var selectedFruit = "Apple"
+    @State private var showMenu = false
+
+    private let lessonColor = DojoTheme.color(for: "lessonGreen")
+    private let fruits = ["Apple", "Banana", "Cherry", "Date", "Elderberry"]
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 28) {
+                header
+                buttonSection
+                toggleSection
+                sliderSection
+                stepperSection
+                pickerSection
+                datePickerSection
+                colorPickerSection
+                textInputSection
+                menuSection
+                completeButton
+            }
+            .padding(.horizontal)
+            .padding(.bottom, 40)
+        }
+        .navigationTitle("Day 3: Controls")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private var header: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "slider.horizontal.3")
+                .font(.largeTitle)
+                .foregroundStyle(lessonColor)
+                .pulsingSymbol()
+
+            Text("Buttons, Toggles & Inputs")
+                .font(.title2.bold())
+
+            Text("Interactive controls that drive your app")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+        .padding(.top)
+    }
+
+    // MARK: - Button
+
+    private var buttonSection: some View {
+        ComponentShowcase(title: "Button", description: "Tappable interactive controls", color: lessonColor) {
+            VStack(spacing: 12) {
+                Text("Tapped: \(buttonTapCount) times")
+                    .font(.headline)
+                    .contentTransition(.numericText())
+                    .animation(.snappy, value: buttonTapCount)
+
+                HStack(spacing: 12) {
+                    Button("Default") { buttonTapCount += 1 }
+                    Button("Bordered") { buttonTapCount += 1 }
+                        .buttonStyle(.bordered)
+                    Button("Prominent") { buttonTapCount += 1 }
+                        .buttonStyle(.borderedProminent)
+                    Button(role: .destructive) { buttonTapCount += 1 } label: {
+                        Text("Delete")
+                    }
+                    .buttonStyle(.bordered)
+                }
+
+                Button { buttonTapCount += 1 } label: {
+                    Label("Custom Button", systemImage: "sparkles")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(RoundedRectangle(cornerRadius: 12).fill(lessonColor))
+                }
+                .buttonStyle(.plain)
+
+                CodeSnippetView(code: """
+                Button("Prominent") { action() }
+                    .buttonStyle(.borderedProminent)
+                
+                Button { action() } label: {
+                    Label("Custom", systemImage: "sparkles")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(RoundedRectangle(cornerRadius: 12)
+                            .fill(.green))
+                }
+                """, title: "Button.swift")
+            }
+        }
+    }
+
+    // MARK: - Toggle
+
+    private var toggleSection: some View {
+        ComponentShowcase(title: "Toggle", description: "On/off switch for boolean values", color: lessonColor) {
+            VStack(spacing: 12) {
+                Toggle("Notifications", isOn: $toggleValue)
+                Toggle("Dark Mode", isOn: .constant(false))
+                    .tint(.purple)
+                Toggle("Airplane Mode", isOn: $toggleValue)
+                    .toggleStyle(.button)
+
+                CodeSnippetView(code: """
+                @State private var isOn = true
+                
+                Toggle("Notifications", isOn: $isOn)
+                Toggle("Styled", isOn: $isOn)
+                    .tint(.purple)
+                """, title: "Toggle.swift")
+            }
+        }
+    }
+
+    // MARK: - Slider
+
+    private var sliderSection: some View {
+        ComponentShowcase(title: "Slider", description: "Continuous value selection", color: lessonColor) {
+            VStack(spacing: 12) {
+                Text("Value: \(Int(sliderValue))")
+                    .font(.title2.bold())
+                    .foregroundStyle(lessonColor)
+                    .contentTransition(.numericText())
+
+                Slider(value: $sliderValue, in: 0...100, step: 1) {
+                    Text("Volume")
+                } minimumValueLabel: {
+                    Image(systemName: "speaker.fill")
+                } maximumValueLabel: {
+                    Image(systemName: "speaker.wave.3.fill")
+                }
+                .tint(lessonColor)
+
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(lessonColor.opacity(sliderValue / 100))
+                    .frame(height: 30)
+                    .animation(.snappy, value: sliderValue)
+
+                CodeSnippetView(code: """
+                @State private var value: Double = 50
+                
+                Slider(value: $value, in: 0...100) {
+                    Text("Volume")
+                } minimumValueLabel: {
+                    Image(systemName: "speaker.fill")
+                } maximumValueLabel: {
+                    Image(systemName: "speaker.wave.3.fill")
+                }
+                """, title: "Slider.swift")
+            }
+        }
+    }
+
+    // MARK: - Stepper
+
+    private var stepperSection: some View {
+        ComponentShowcase(title: "Stepper", description: "Increment/decrement integer values", color: lessonColor) {
+            VStack(spacing: 12) {
+                HStack {
+                    ForEach(0..<stepperValue, id: \.self) { _ in
+                        Image(systemName: "star.fill")
+                            .foregroundStyle(.yellow)
+                    }
+                }
+                .animation(.snappy, value: stepperValue)
+
+                Stepper("Rating: \(stepperValue)", value: $stepperValue, in: 1...5)
+
+                CodeSnippetView(code: """
+                @State private var count = 3
+                Stepper("Rating: \\(count)",
+                        value: $count, in: 1...5)
+                """, title: "Stepper.swift")
+            }
+        }
+    }
+
+    // MARK: - Picker
+
+    private var pickerSection: some View {
+        ComponentShowcase(title: "Picker", description: "Select from predefined options", color: lessonColor) {
+            VStack(spacing: 12) {
+                Picker("Fruit", selection: $selectedFruit) {
+                    ForEach(fruits, id: \.self) { Text($0) }
+                }
+                .pickerStyle(.segmented)
+
+                Picker("Favorite Fruit", selection: $selectedFruit) {
+                    ForEach(fruits, id: \.self) { Text($0) }
+                }
+                .pickerStyle(.menu)
+
+                Text("Selected: \(selectedFruit)")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                CodeSnippetView(code: """
+                Picker("Fruit", selection: $selected) {
+                    ForEach(fruits, id: \\.self) { Text($0) }
+                }
+                .pickerStyle(.segmented)
+                // Also: .menu, .wheel, .inline
+                """, title: "Picker.swift")
+            }
+        }
+    }
+
+    // MARK: - DatePicker
+
+    private var datePickerSection: some View {
+        ComponentShowcase(title: "DatePicker", description: "Select dates and times", color: lessonColor) {
+            VStack(spacing: 12) {
+                DatePicker("Event Date", selection: $dateValue, displayedComponents: [.date])
+                DatePicker("Time", selection: $dateValue, displayedComponents: [.hourAndMinute])
+
+                CodeSnippetView(code: """
+                @State private var date = Date()
+                DatePicker("Event", selection: $date,
+                           displayedComponents: [.date])
+                """, title: "DatePicker.swift")
+            }
+        }
+    }
+
+    // MARK: - ColorPicker
+
+    private var colorPickerSection: some View {
+        ComponentShowcase(title: "ColorPicker", description: "Let users choose any color", color: lessonColor) {
+            VStack(spacing: 12) {
+                ColorPicker("Pick a Color", selection: $colorValue)
+
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(colorValue)
+                    .frame(height: 50)
+
+                CodeSnippetView(code: """
+                @State private var color: Color = .blue
+                ColorPicker("Pick", selection: $color)
+                """, title: "ColorPicker.swift")
+            }
+        }
+    }
+
+    // MARK: - Text Input
+
+    private var textInputSection: some View {
+        ComponentShowcase(title: "Text Input", description: "TextField, TextEditor, SecureField", color: lessonColor) {
+            VStack(spacing: 12) {
+                TextField("Enter your name", text: $textFieldValue)
+                    .textFieldStyle(.roundedBorder)
+
+                SecureField("Password", text: $secureFieldValue)
+                    .textFieldStyle(.roundedBorder)
+
+                TextEditor(text: $textEditorValue)
+                    .frame(height: 80)
+                    .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Color(.systemGray4), lineWidth: 1))
+
+                CodeSnippetView(code: """
+                TextField("Name", text: $name)
+                    .textFieldStyle(.roundedBorder)
+                SecureField("Password", text: $pw)
+                TextEditor(text: $notes)
+                """, title: "TextInput.swift")
+            }
+        }
+    }
+
+    // MARK: - Menu
+
+    private var menuSection: some View {
+        ComponentShowcase(title: "Menu", description: "Contextual action menus", color: lessonColor) {
+            VStack(spacing: 12) {
+                Menu("Options") {
+                    Button("Copy", action: {})
+                    Button("Paste", action: {})
+                    Divider()
+                    Button(role: .destructive) {} label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                    Menu("Share") {
+                        Button("Messages", action: {})
+                        Button("Email", action: {})
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+
+                CodeSnippetView(code: """
+                Menu("Options") {
+                    Button("Copy", action: {})
+                    Button("Paste", action: {})
+                    Divider()
+                    Menu("Share") {
+                        Button("Messages", action: {})
+                    }
+                }
+                """, title: "Menu.swift")
+            }
+        }
+    }
+
+    // MARK: - Complete
+
+    private var completeButton: some View {
+        Button {
+            withAnimation(.snappy) {
+                appVM.userProgress.markLessonComplete(3)
+            }
+        } label: {
+            Label(
+                appVM.userProgress.isLessonComplete(3) ? "Completed!" : "Mark as Complete",
+                systemImage: appVM.userProgress.isLessonComplete(3) ? "checkmark.circle.fill" : "circle"
+            )
+            .font(.headline)
+            .frame(maxWidth: .infinity)
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(appVM.userProgress.isLessonComplete(3) ? AnyShapeStyle(Color.green) : AnyShapeStyle(DojoTheme.heroGradient))
+            )
+            .foregroundStyle(.white)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+#Preview {
+    NavigationStack {
+        Day3ControlsView()
+    }
+    .environment(AppViewModel())
+}

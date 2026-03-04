@@ -1,21 +1,31 @@
-//
-//  ContentView.swift
-//  ExampleComponents
-//
-//  Created by Rod on 3/3/26.
-//
-
 import SwiftUI
 
 struct ContentView: View {
+    @State private var appVM = AppViewModel()
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        TabView(selection: Binding(
+            get: { appVM.selectedTab },
+            set: { appVM.selectedTab = $0 }
+        )) {
+            Tab("Home", systemImage: "house.fill", value: .home) {
+                HomeView()
+            }
+
+            Tab("Lessons", systemImage: "book.fill", value: .lessons) {
+                LessonListView()
+            }
+
+            Tab("Challenges", systemImage: "trophy.fill", value: .challenges) {
+                ChallengesView()
+            }
+
+            Tab("Profile", systemImage: "person.fill", value: .profile) {
+                ProfileView()
+            }
         }
-        .padding()
+        .tint(.purple)
+        .environment(appVM)
     }
 }
 
