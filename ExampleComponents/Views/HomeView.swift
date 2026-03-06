@@ -10,7 +10,7 @@ struct HomeView: View {
                     heroSection
                     streakAndProgress
                     todaysLesson
-                    quickChallengeButton
+                    quickActions
                     achievementsSection
                 }
                 .padding(.horizontal)
@@ -41,6 +41,13 @@ struct HomeView: View {
                     Text("Your 7-day SwiftUI mastery journey")
                         .font(.subheadline)
                         .foregroundStyle(.white.opacity(0.85))
+
+                    Text("\(appVM.userProgress.xpPoints) XP")
+                        .font(.caption.bold().monospacedDigit())
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 4)
+                        .background(Capsule().fill(.white.opacity(0.2)))
+                        .foregroundStyle(.white)
                 }
             }
         }
@@ -114,29 +121,52 @@ struct HomeView: View {
             ?? Lesson.allLessons[0]
     }
 
-    // MARK: - Quick Challenge
+    // MARK: - Quick Actions
 
-    private var quickChallengeButton: some View {
-        Button {
-            appVM.selectedTab = .challenges
-        } label: {
-            HStack {
-                Image(systemName: "bolt.fill")
-                    .font(.title2)
-                Text("Quick Challenge")
-                    .font(.headline)
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .font(.caption.bold())
+    private var quickActions: some View {
+        VStack(spacing: 12) {
+            Button {
+                appVM.selectedTab = .challenges
+            } label: {
+                HStack {
+                    Image(systemName: "bolt.fill")
+                        .font(.title2)
+                    Text("Quick Challenge")
+                        .font(.headline)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption.bold())
+                }
+                .foregroundStyle(.white)
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(DojoTheme.warmGradient)
+                )
             }
-            .foregroundStyle(.white)
-            .padding()
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(DojoTheme.warmGradient)
-            )
+            .buttonStyle(.plain)
+
+            Button {
+                appVM.selectedTab = .reference
+            } label: {
+                HStack {
+                    Image(systemName: "text.book.closed.fill")
+                        .font(.title2)
+                    Text("Concept Reference")
+                        .font(.headline)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption.bold())
+                }
+                .foregroundStyle(.white)
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(DojoTheme.coolGradient)
+                )
+            }
+            .buttonStyle(.plain)
         }
-        .buttonStyle(.plain)
     }
 
     // MARK: - Achievements
@@ -148,13 +178,13 @@ struct HomeView: View {
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
-                    AchievementBadge(title: "First Steps",  icon: "figure.walk",       color: .blue,   isUnlocked: appVM.userProgress.completedLessons.count >= 1)
-                    AchievementBadge(title: "Layout Pro",   icon: "square.grid.3x3",   color: .orange, isUnlocked: appVM.userProgress.isLessonComplete(2))
-                    AchievementBadge(title: "Control Freak",icon: "slider.horizontal.3",color: .green,  isUnlocked: appVM.userProgress.isLessonComplete(3))
-                    AchievementBadge(title: "Navigator",    icon: "map.fill",           color: .teal,   isUnlocked: appVM.userProgress.isLessonComplete(4))
-                    AchievementBadge(title: "Data Wizard",  icon: "wand.and.rays",      color: .purple, isUnlocked: appVM.userProgress.isLessonComplete(5))
-                    AchievementBadge(title: "Animator",     icon: "sparkles",           color: .pink,   isUnlocked: appVM.userProgress.isLessonComplete(6))
-                    AchievementBadge(title: "Grand Master", icon: "crown.fill",         color: .yellow, isUnlocked: appVM.userProgress.completedLessons.count == 7)
+                    AchievementBadge(title: "First Steps", icon: "figure.walk", color: .blue, isUnlocked: appVM.userProgress.completedLessons.count >= 1)
+                    AchievementBadge(title: "Layout Pro", icon: "square.grid.3x3", color: .orange, isUnlocked: appVM.userProgress.isLessonComplete(2))
+                    AchievementBadge(title: "Control Freak", icon: "slider.horizontal.3", color: .green, isUnlocked: appVM.userProgress.isLessonComplete(3))
+                    AchievementBadge(title: "Navigator", icon: "map.fill", color: .teal, isUnlocked: appVM.userProgress.isLessonComplete(4))
+                    AchievementBadge(title: "Data Wizard", icon: "wand.and.rays", color: .purple, isUnlocked: appVM.userProgress.isLessonComplete(5))
+                    AchievementBadge(title: "Animator", icon: "sparkles", color: .pink, isUnlocked: appVM.userProgress.isLessonComplete(6))
+                    AchievementBadge(title: "Grand Master", icon: "crown.fill", color: .yellow, isUnlocked: appVM.userProgress.completedLessons.count == 7)
                 }
                 .padding(.vertical, 4)
             }

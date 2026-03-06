@@ -13,14 +13,71 @@ struct Day5StateDataFlowView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 28) {
+            VStack(spacing: 24) {
                 header
+                objectiveSection
+
+                ConceptExplainer(
+                    title: "@State: The Source of Truth",
+                    explanation: "Every piece of mutable data in SwiftUI needs a clear owner. @State declares that THIS view owns and manages this value. When the value changes, SwiftUI automatically re-renders the view. This is the fundamental reactive pattern: state drives UI.",
+                    whyItMatters: "Understanding @State is the foundation of SwiftUI thinking. Unlike UIKit where you manually update labels and images, in SwiftUI you change state and the UI updates itself. This mental shift is the biggest hurdle for UIKit developers.",
+                    whenToUse: "Use @State for simple, view-local data: counters, toggle bools, text input, selected items. Always mark it private — if another view needs to write to it, use @Binding instead.",
+                    color: lessonColor
+                )
                 stateSection
+                TipBox(style: .mistake, content: "Common mistake: Making @State non-private. If a parent view passes a value to a child's @State, the child gets a copy — changes won't flow back to the parent. Use @Binding for two-way communication.")
+
+                ConceptExplainer(
+                    title: "@Binding: Shared Read-Write Access",
+                    explanation: "@Binding creates a two-way connection to a @State owned by a parent view. The child can read AND write the value, and changes propagate back to the parent. You pass bindings using the $ prefix: $myValue.",
+                    whyItMatters: "Binding is how SwiftUI achieves component reusability. A Slider, Toggle, or TextField all use @Binding to read/write state they don't own. Understanding this pattern is essential for building reusable components.",
+                    whenToUse: "Use @Binding when a child view needs to modify a parent's state. Common pattern: parent owns @State, passes $state to child's @Binding.",
+                    color: lessonColor
+                )
                 bindingSection
+                TipBox(style: .tip, content: "The $ prefix creates a Binding from a @State. Think of @State as the storage and $state as the remote control. The child gets the remote but not the storage.")
+
+                ConceptExplainer(
+                    title: "@Observable: Modern Observation",
+                    explanation: "@Observable (iOS 17+) replaces the older ObservableObject/@Published pattern. Mark a class with @Observable and all its stored properties are automatically tracked. SwiftUI only re-renders views that actually READ changed properties — much more efficient.",
+                    whyItMatters: "For any non-trivial app, you'll have shared data models (user profile, settings, network state). @Observable is the modern way to share reference-type data across views with automatic, efficient updates.",
+                    whenToUse: "Use for shared view models, app state, and data that multiple views need to access. Use with @State for view-owned instances, or .environment() for app-wide injection.",
+                    color: lessonColor
+                )
                 observableSection
+                TipBox(style: .info, content: "With @Observable, you don't need @Published anymore. Every stored property is automatically tracked. If a view reads .name but not .age, changing .age won't cause that view to re-render.")
+
+                ConceptExplainer(
+                    title: "@AppStorage: Simple Persistence",
+                    explanation: "@AppStorage wraps UserDefaults, providing a property wrapper that automatically saves and loads values. It supports String, Int, Double, Bool, URL, and Data. Changes persist across app launches.",
+                    whyItMatters: "Every app needs to persist user preferences (theme, onboarding state, settings). @AppStorage makes this trivially easy — one line replaces manual UserDefaults read/write code.",
+                    whenToUse: "Use for small, simple preferences: theme choice, has-seen-onboarding, last-selected tab. NOT for large data (use SwiftData or files instead).",
+                    color: lessonColor
+                )
                 appStorageSection
+                TipBox(style: .warning, content: "Don't store arrays, complex objects, or sensitive data in @AppStorage. It's backed by UserDefaults (not encrypted, not efficient for large data). Use Keychain for passwords and SwiftData for structured data.")
+
+                ConceptExplainer(
+                    title: "@Environment: System & Custom Values",
+                    explanation: "@Environment reads values from the SwiftUI environment — a built-in dependency injection system. System values include colorScheme, dynamicTypeSize, dismiss action, and more. You can also inject custom objects with .environment().",
+                    whyItMatters: "Environment is how SwiftUI passes data down the view hierarchy without explicit parameter passing. It's the standard pattern for theme data, view models, and system state.",
+                    whenToUse: "Use @Environment for system values (colorScheme, dismiss) and for injecting @Observable objects that multiple views need. Use .environment(myVM) to inject, @Environment(MyVM.self) to read.",
+                    color: lessonColor
+                )
                 environmentSection
+
+                ConceptExplainer(
+                    title: "Lifecycle Modifiers",
+                    explanation: "SwiftUI provides modifiers to hook into a view's lifecycle: .onAppear (view became visible), .onDisappear (view left), .onChange(of:) (react to value changes), and .task (async work tied to lifecycle with auto-cancellation).",
+                    whyItMatters: "You need lifecycle hooks to load data, start/stop timers, track analytics, and respond to state changes. .task is especially important for async operations — it auto-cancels when the view disappears.",
+                    whenToUse: ".onAppear for one-time setup. .task for async work (network calls). .onChange(of:) to react to specific value changes. .onDisappear for cleanup.",
+                    color: lessonColor
+                )
                 lifecycleSection
+                TipBox(style: .tip, content: "Prefer .task over .onAppear for async work. .task creates an async context and automatically cancels when the view disappears — preventing bugs from stale callbacks.")
+
+                takeaways
+                miniQuiz
                 completeButton
             }
             .padding(.horizontal)
@@ -45,6 +102,21 @@ struct Day5StateDataFlowView: View {
                 .foregroundStyle(.secondary)
         }
         .padding(.top)
+    }
+
+    private var objectiveSection: some View {
+        LessonObjectiveView(
+            day: 5,
+            title: "Master SwiftUI's data flow patterns — the heart of reactive UI",
+            objectives: [
+                "Own view-local state with @State",
+                "Share state between parent/child with @Binding",
+                "Use @Observable for shared data models",
+                "Persist data with @AppStorage and read system values with @Environment",
+            ],
+            estimatedMinutes: 10,
+            color: lessonColor
+        )
     }
 
     // MARK: - @State
@@ -80,18 +152,6 @@ struct Day5StateDataFlowView: View {
                     }
                 }
 
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Key points:")
-                        .font(.caption.bold())
-                    Text("  - @State is the source of truth")
-                        .font(.caption).foregroundStyle(.secondary)
-                    Text("  - Only the owning view can write to it")
-                        .font(.caption).foregroundStyle(.secondary)
-                    Text("  - Changes trigger automatic re-render")
-                        .font(.caption).foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-
                 CodeSnippetView(code: """
                 @State private var counter = 0
                 
@@ -118,18 +178,6 @@ struct Day5StateDataFlowView: View {
                             .font(.caption.bold())
                             .foregroundStyle(.white)
                     )
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Key points:")
-                        .font(.caption.bold())
-                    Text("  - @Binding reads & writes parent's @State")
-                        .font(.caption).foregroundStyle(.secondary)
-                    Text("  - Passed with $ prefix: $myValue")
-                        .font(.caption).foregroundStyle(.secondary)
-                    Text("  - Creates two-way data flow")
-                        .font(.caption).foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
 
                 CodeSnippetView(code: """
                 // Parent
@@ -221,7 +269,7 @@ struct Day5StateDataFlowView: View {
                     .buttonStyle(.plain)
                 }
 
-                Text("This value persists across app launches!")
+                Text("Close and reopen the app — this value persists!")
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
@@ -243,14 +291,13 @@ struct Day5StateDataFlowView: View {
                 EnvironmentDemoChild()
 
                 CodeSnippetView(code: """
-                // Reading system environment values
                 @Environment(\\.colorScheme) var scheme
                 @Environment(\\.dynamicTypeSize) var typeSize
                 @Environment(\\.dismiss) var dismiss
                 
-                // Injecting custom objects
+                // Injecting custom @Observable objects
                 .environment(myViewModel)
-                // Then: @Environment(MyVM.self) var vm
+                // Reading: @Environment(MyVM.self) var vm
                 """, title: "Environment.swift")
             }
         }
@@ -280,12 +327,56 @@ struct Day5StateDataFlowView: View {
                         print("Changed: \\(old) → \\(new)")
                     }
                     .task {
-                        // async work, auto-cancelled
                         data = await fetchData()
                     }
                 """, title: "Lifecycle.swift")
             }
         }
+    }
+
+    // MARK: - Takeaways
+
+    private var takeaways: some View {
+        KeyTakeawaysView(
+            takeaways: [
+                "@State is the source of truth — the view owns and manages this data",
+                "@Binding borrows state from a parent — it reads and writes without owning",
+                "@Observable auto-tracks properties and only re-renders views that read changed values",
+                "@AppStorage persists simple values across app launches via UserDefaults",
+                "@Environment reads system values (colorScheme) and injected dependencies",
+                ".task is preferred over .onAppear for async work — it auto-cancels on disappear",
+            ],
+            color: lessonColor
+        )
+    }
+
+    // MARK: - Mini Quiz
+
+    private var miniQuiz: some View {
+        MiniQuizView(
+            title: "Check Your Understanding",
+            questions: [
+                MiniQuizQuestion(
+                    question: "A child view needs to toggle a parent's Bool value. What should the child use?",
+                    options: ["@State private var", "@Binding var", "@Observable", "@AppStorage"],
+                    correctIndex: 1,
+                    explanation: "The child needs to write to the parent's state, which requires @Binding. The parent passes its $state, and the child reads/writes through @Binding."
+                ),
+                MiniQuizQuestion(
+                    question: "Your @Observable view model has 5 properties. A view reads only 2 of them. When do re-renders occur?",
+                    options: ["When any of the 5 properties changes", "Only when either of the 2 read properties changes", "On every frame", "Never — @Observable doesn't trigger updates"],
+                    correctIndex: 1,
+                    explanation: "@Observable tracks which properties each view actually accesses. If your view only reads .name and .email, changes to .age, .avatar, or .settings won't cause a re-render."
+                ),
+                MiniQuizQuestion(
+                    question: "When should you use .task { } instead of .onAppear { }?",
+                    options: ["When you don't need async", "When you need async/await and want auto-cancellation on disappear", "When loading static data", "They're always interchangeable"],
+                    correctIndex: 1,
+                    explanation: ".task provides an async context and automatically cancels when the view disappears. This prevents bugs from callbacks arriving after navigation away."
+                ),
+            ],
+            color: lessonColor
+        )
     }
 
     // MARK: - Complete

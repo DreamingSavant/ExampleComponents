@@ -32,15 +32,71 @@ struct Day6AnimationDrawingView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 28) {
+            VStack(spacing: 24) {
                 header
+                objectiveSection
+
+                ConceptExplainer(
+                    title: "Explicit Animation: withAnimation",
+                    explanation: "withAnimation wraps a state change so that SwiftUI animates all view properties affected by that change. You control the animation curve (spring, easeIn, linear) and duration. This is 'explicit' because YOU decide when to animate.",
+                    whyItMatters: "Animation is what separates a flat, static app from a polished, professional one. Explicit animation gives you precise control over what animates and when.",
+                    whenToUse: "Use withAnimation when you change state in response to user actions (button taps, gestures). You wrap the state change, not the view. SwiftUI figures out what changed and animates it.",
+                    color: lessonColor
+                )
                 explicitAnimationSection
+                TipBox(style: .tip, content: "Spring animations feel more natural than linear ones. Use .spring(response:dampingFraction:) — lower damping = more bounce. Most Apple apps use spring animations.")
+
+                ConceptExplainer(
+                    title: "Implicit Animation: .animation()",
+                    explanation: ".animation(_:value:) attaches an animation to a specific value. Whenever that value changes — regardless of how — the view animates. This is 'implicit' because the animation is always active, watching for changes.",
+                    whyItMatters: "Implicit animations are great for views that should always animate when a value changes (like a progress bar or rotating icon). You set it once and it works automatically.",
+                    whenToUse: "Use .animation(value:) for values that should always animate when they change. Use withAnimation for one-time state changes you want to control explicitly.",
+                    color: lessonColor
+                )
                 implicitAnimationSection
+                TipBox(style: .mistake, content: "Common mistake: Using .animation() without the value: parameter. The old version without value: is deprecated and can cause unexpected animations. Always specify which value to watch.")
+
+                ConceptExplainer(
+                    title: "Transitions: Enter & Exit Animations",
+                    explanation: "Transitions define how views animate when they appear or disappear from the view hierarchy (if/else, ForEach). Built-in transitions include .opacity, .slide, .scale, .move(edge:). Use .asymmetric for different enter/exit animations.",
+                    whyItMatters: "Without transitions, views pop in/out instantly, which feels jarring. Transitions add polish by smoothly introducing and removing views.",
+                    whenToUse: "Apply .transition() to views inside if/else blocks or conditional rendering. The parent must have an animation (via withAnimation or .animation) for transitions to work.",
+                    color: lessonColor
+                )
                 transitionsSection
+                TipBox(style: .warning, content: "Transitions only work when the view is added/removed from the hierarchy (if/else). Changing opacity to 0 is NOT a transition — the view is still in the hierarchy. Use conditional rendering for transitions.")
+
+                ConceptExplainer(
+                    title: "matchedGeometryEffect: Hero Animations",
+                    explanation: "matchedGeometryEffect creates smooth 'hero' transitions between two views that share the same ID and @Namespace. SwiftUI interpolates the size and position, creating the illusion of one view morphing into another.",
+                    whyItMatters: "Hero animations are the signature of polished apps (App Store cards, photo zoom). They provide visual continuity during navigation, helping users understand spatial relationships.",
+                    whenToUse: "Use for expand/collapse transitions, card-to-detail animations, and any case where two views represent the same conceptual item at different sizes or positions.",
+                    color: lessonColor
+                )
                 matchedGeometrySection
+
+                ConceptExplainer(
+                    title: "Shapes & Custom Drawing",
+                    explanation: "SwiftUI provides built-in shapes (Circle, Rectangle, Capsule, Ellipse, RoundedRectangle) and the Shape protocol for custom shapes. Shapes conform to View so you can use them directly. Custom shapes implement path(in:) to define geometry.",
+                    whyItMatters: "Shapes are used everywhere: avatars (Circle clipShape), cards (RoundedRectangle), progress indicators, and custom UI elements. Understanding Shape lets you create any visual element.",
+                    whenToUse: "Use built-in shapes for standard UI elements. Create custom shapes (Shape protocol) for unique graphics like stars, waves, or custom progress rings.",
+                    color: lessonColor
+                )
                 shapesSection
                 customShapeSection
+
+                ConceptExplainer(
+                    title: "Path: Freeform Vector Drawing",
+                    explanation: "Path lets you draw arbitrary vector graphics using move, line, curve, and arc commands — similar to SVG path data. For animated shapes, implement animatableData to tell SwiftUI which values to interpolate.",
+                    whyItMatters: "Path gives you unlimited creative freedom for custom graphics, charts, wave animations, and decorative elements that no built-in view can provide.",
+                    whenToUse: "Use for custom progress indicators, chart lines, wave effects, and any graphic that requires freeform vector drawing. For simple shapes, prefer built-in ones.",
+                    color: lessonColor
+                )
                 pathDrawingSection
+                TipBox(style: .info, content: "To animate a custom shape smoothly, implement animatableData. Without it, SwiftUI can't interpolate between states and the shape will jump instantly.")
+
+                takeaways
+                miniQuiz
                 completeButton
             }
             .padding(.horizontal)
@@ -65,6 +121,21 @@ struct Day6AnimationDrawingView: View {
                 .foregroundStyle(.secondary)
         }
         .padding(.top)
+    }
+
+    private var objectiveSection: some View {
+        LessonObjectiveView(
+            day: 6,
+            title: "Add animation and custom graphics to make your app feel alive",
+            objectives: [
+                "Use withAnimation for explicit, controlled animations",
+                "Understand implicit animations with .animation(value:)",
+                "Create enter/exit transitions and hero animations",
+                "Draw custom shapes with the Shape protocol and Path",
+            ],
+            estimatedMinutes: 10,
+            color: lessonColor
+        )
     }
 
     // MARK: - Explicit Animation
@@ -111,8 +182,6 @@ struct Day6AnimationDrawingView: View {
                                       dampingFraction: 0.6)) {
                     isAnimating.toggle()
                 }
-                // The view automatically animates all
-                // properties affected by the state change
                 """, title: "withAnimation.swift")
             }
         }
@@ -267,9 +336,6 @@ struct Day6AnimationDrawingView: View {
                 
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(.red, lineWidth: 3)
-                
-                Capsule()
-                    .fill(.green)
                 """, title: "Shapes.swift")
             }
         }
@@ -314,10 +380,9 @@ struct Day6AnimationDrawingView: View {
                     let points: Int
                     
                     func path(in rect: CGRect) -> Path {
-                        // Calculate star vertices
-                        // using trigonometry and Path API
                         var path = Path()
-                        // ... geometry math here
+                        // Calculate star vertices using trig
+                        // Alternate between outer/inner radius
                         return path
                     }
                 }
@@ -361,6 +426,51 @@ struct Day6AnimationDrawingView: View {
                 """, title: "Path.swift")
             }
         }
+    }
+
+    // MARK: - Takeaways
+
+    private var takeaways: some View {
+        KeyTakeawaysView(
+            takeaways: [
+                "withAnimation wraps state changes for explicit control; .animation(value:) watches values implicitly",
+                "Spring animations feel the most natural — use them as your default",
+                "Transitions require conditional rendering (if/else) to trigger enter/exit animations",
+                "matchedGeometryEffect morphs between views sharing an ID + @Namespace",
+                "Custom shapes implement path(in:) — add animatableData for smooth animation",
+                "Path gives unlimited drawing freedom but use built-in shapes when they suffice",
+            ],
+            color: lessonColor
+        )
+    }
+
+    // MARK: - Mini Quiz
+
+    private var miniQuiz: some View {
+        MiniQuizView(
+            title: "Check Your Understanding",
+            questions: [
+                MiniQuizQuestion(
+                    question: "You want a button tap to smoothly move a circle from left to right. What's the best approach?",
+                    options: [".animation() on the circle", "withAnimation { offset.toggle() } in the button action", "Timer to update position", "UIView.animate"],
+                    correctIndex: 1,
+                    explanation: "withAnimation wraps the state change (toggling the offset) so SwiftUI animates the circle's movement. This is explicit animation — you choose when it happens."
+                ),
+                MiniQuizQuestion(
+                    question: "Why doesn't a transition work when you change a view's opacity to 0?",
+                    options: ["Opacity can't be animated", "The view is still in the hierarchy — transitions need if/else to add/remove views", "You need .animation()", "Transitions only work on shapes"],
+                    correctIndex: 1,
+                    explanation: "Transitions trigger when views enter/leave the view tree. Changing opacity to 0 hides the view but keeps it in the hierarchy. Use if/else for transitions."
+                ),
+                MiniQuizQuestion(
+                    question: "What do you need for matchedGeometryEffect to work?",
+                    options: ["Just a shared ID", "A shared ID and @Namespace", "A NavigationLink", "UIKit interop"],
+                    correctIndex: 1,
+                    explanation: "matchedGeometryEffect requires both a shared ID string and a @Namespace declared with the property wrapper. Both views reference the same ID within the same namespace."
+                ),
+            ],
+            color: lessonColor
+        )
     }
 
     // MARK: - Complete

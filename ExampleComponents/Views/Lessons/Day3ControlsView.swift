@@ -14,24 +14,70 @@ struct Day3ControlsView: View {
     @State private var secureFieldValue = ""
     @State private var buttonTapCount = 0
     @State private var selectedFruit = "Apple"
-    @State private var showMenu = false
 
     private let lessonColor = DojoTheme.color(for: "lessonGreen")
     private let fruits = ["Apple", "Banana", "Cherry", "Date", "Elderberry"]
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 28) {
+            VStack(spacing: 24) {
                 header
+                objectiveSection
+
+                ConceptExplainer(
+                    title: "Buttons: The Primary Action Control",
+                    explanation: "Button is how users trigger actions. SwiftUI provides several built-in styles (plain, bordered, borderedProminent) and lets you build fully custom buttons. Buttons can have roles (.destructive, .cancel) that affect their styling.",
+                    whyItMatters: "Every app needs buttons. Understanding button styles, custom labels, and roles ensures your actions look and feel right. A prominent button draws the eye; a destructive button warns the user.",
+                    whenToUse: "Use .borderedProminent for primary actions, .bordered for secondary, plain for custom-styled buttons, and role: .destructive for dangerous actions.",
+                    color: lessonColor
+                )
                 buttonSection
+                TipBox(style: .tip, content: "For a fully custom button, use .buttonStyle(.plain) and build your own label. This removes all default styling, giving you complete control.")
+
+                ConceptExplainer(
+                    title: "State-Driven Controls",
+                    explanation: "Toggle, Slider, Stepper, and Picker are all state-driven — they require a binding to a piece of state. When the user interacts, the control updates the state, and SwiftUI automatically re-renders any views that depend on it.",
+                    whyItMatters: "This is the core SwiftUI pattern: UI reflects state. There's no 'get the value from the control' — the value IS the state. Understanding this pattern is fundamental to thinking in SwiftUI.",
+                    whenToUse: "Toggle for boolean on/off. Slider for continuous ranges. Stepper for discrete increments. Picker for selection from a fixed set of options.",
+                    color: lessonColor
+                )
                 toggleSection
                 sliderSection
                 stepperSection
+                TipBox(style: .info, content: "All these controls use the same pattern: @State + $binding. The $ prefix creates a two-way connection between the control and your state variable.")
+
+                ConceptExplainer(
+                    title: "Pickers: Selection Controls",
+                    explanation: "Picker lets users choose from a set of options. The key is the pickerStyle modifier — .segmented shows all options inline, .menu hides them in a dropdown, .wheel shows a scroll wheel. The right style depends on the number of options and context.",
+                    whyItMatters: "Choosing the right picker style improves UX. Segmented works for 2-5 options. Menu works for many options. DatePicker and ColorPicker are specialized pickers for specific data types.",
+                    whenToUse: "Use Picker for selection from a list. DatePicker for dates/times. ColorPicker for colors. Choose the style based on the number of options and available space.",
+                    color: lessonColor
+                )
                 pickerSection
                 datePickerSection
                 colorPickerSection
+
+                ConceptExplainer(
+                    title: "Text Input Controls",
+                    explanation: "SwiftUI provides three text input controls: TextField for single-line input, SecureField for passwords (text is hidden), and TextEditor for multi-line text. All bind to a String state variable.",
+                    whyItMatters: "User input is fundamental. Knowing which control to use and how to style them (textFieldStyle, keyboard type, submit actions) ensures a smooth input experience.",
+                    whenToUse: "TextField for names, emails, short input. SecureField for passwords. TextEditor for notes, comments, long-form text.",
+                    color: lessonColor
+                )
                 textInputSection
+                TipBox(style: .mistake, content: "Common mistake: Using TextEditor when TextField suffices. TextEditor doesn't support placeholder text natively and takes up more space. Use TextField for single-line input.")
+
+                ConceptExplainer(
+                    title: "Menu: Contextual Actions",
+                    explanation: "Menu creates a popup menu with action buttons, dividers, and even nested sub-menus. Unlike Picker (which selects a value), Menu triggers actions.",
+                    whyItMatters: "Menus are the standard way to offer contextual actions without cluttering the UI. They support destructive roles, sub-menus, and dividers.",
+                    whenToUse: "Use Menu when you have multiple actions related to an item (Copy, Share, Delete). Use Picker when the user is choosing a value, not triggering an action.",
+                    color: lessonColor
+                )
                 menuSection
+
+                takeaways
+                miniQuiz
                 completeButton
             }
             .padding(.horizontal)
@@ -56,6 +102,21 @@ struct Day3ControlsView: View {
                 .foregroundStyle(.secondary)
         }
         .padding(.top)
+    }
+
+    private var objectiveSection: some View {
+        LessonObjectiveView(
+            day: 3,
+            title: "Master every interactive control SwiftUI offers",
+            objectives: [
+                "Build buttons with different styles and custom labels",
+                "Use Toggle, Slider, and Stepper for state-driven input",
+                "Choose the right Picker style for each situation",
+                "Handle text input with TextField, SecureField, and TextEditor",
+            ],
+            estimatedMinutes: 10,
+            color: lessonColor
+        )
     }
 
     // MARK: - Button
@@ -313,6 +374,51 @@ struct Day3ControlsView: View {
                 """, title: "Menu.swift")
             }
         }
+    }
+
+    // MARK: - Takeaways
+
+    private var takeaways: some View {
+        KeyTakeawaysView(
+            takeaways: [
+                "All controls follow the same pattern: @State + $binding for two-way data flow",
+                "Button styles (plain, bordered, borderedProminent) communicate action importance",
+                "Picker's pickerStyle changes presentation — segmented, menu, wheel, inline",
+                "TextField = single-line, SecureField = passwords, TextEditor = multi-line",
+                "Menu is for actions; Picker is for value selection — don't confuse them",
+                "Toggle, Slider, Stepper each handle a specific type of input (bool, range, increment)",
+            ],
+            color: lessonColor
+        )
+    }
+
+    // MARK: - Mini Quiz
+
+    private var miniQuiz: some View {
+        MiniQuizView(
+            title: "Check Your Understanding",
+            questions: [
+                MiniQuizQuestion(
+                    question: "A user needs to enter a paragraph of feedback. Which control should you use?",
+                    options: ["TextField", "SecureField", "TextEditor", "Label"],
+                    correctIndex: 2,
+                    explanation: "TextEditor handles multi-line text input. TextField is single-line only. SecureField hides input (for passwords)."
+                ),
+                MiniQuizQuestion(
+                    question: "You have a list of 15 country options. Which Picker style is best?",
+                    options: [".segmented", ".menu", ".wheel", ".inline"],
+                    correctIndex: 1,
+                    explanation: ".menu is best for many options — it opens a dropdown without taking permanent screen space. .segmented works for 2-5 items only."
+                ),
+                MiniQuizQuestion(
+                    question: "What makes a Button with role: .destructive different from a regular Button?",
+                    options: ["It can't be tapped", "It's styled in red to warn the user", "It requires confirmation", "It only works in lists"],
+                    correctIndex: 1,
+                    explanation: "A destructive role tells SwiftUI to style the button in red/warning colors. This is a visual cue — it doesn't add confirmation automatically."
+                ),
+            ],
+            color: lessonColor
+        )
     }
 
     // MARK: - Complete

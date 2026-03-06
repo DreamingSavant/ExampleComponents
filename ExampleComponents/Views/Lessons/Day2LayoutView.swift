@@ -20,13 +20,61 @@ struct Day2LayoutView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 28) {
+            VStack(spacing: 24) {
                 header
+                objectiveSection
+
+                ConceptExplainer(
+                    title: "The Stack Layout Model",
+                    explanation: "SwiftUI uses three primary containers to arrange views: VStack (vertical), HStack (horizontal), and ZStack (depth/layering). Unlike CSS flexbox or auto layout, SwiftUI stacks are simple and composable — you nest them to create any layout.",
+                    whyItMatters: "Every screen you build is a combination of stacks. Understanding how they distribute space and align children is the single most important layout skill in SwiftUI.",
+                    whenToUse: "VStack for top-to-bottom flow (forms, lists). HStack for side-by-side items (toolbars, stats). ZStack for overlapping content (badges on images, custom cards).",
+                    color: lessonColor
+                )
                 stacksPlayground
+                TipBox(style: .tip, content: "Stacks only hold 10 direct children. For more, wrap groups of views in Group { } or break them into smaller sub-views.")
+
+                ConceptExplainer(
+                    title: "Spacer & Padding",
+                    explanation: "Spacer is a flexible view that expands to fill available space — it pushes sibling views apart. Padding adds breathing room around a view's content. Together, they control whitespace, which is critical for readable, professional layouts.",
+                    whyItMatters: "Good whitespace separates amateur UIs from professional ones. Spacer gives you alignment control, while padding gives you breathing room. Master both for clean layouts.",
+                    whenToUse: "Use Spacer to push views to edges or create proportional gaps. Use .padding() to add consistent insets around content.",
+                    color: lessonColor
+                )
                 spacerAndPadding
+                TipBox(style: .warning, content: "Spacer() is greedy — it takes ALL available space. If you put two Spacers in a stack, they split the space equally. Use Spacer(minLength:) to set a minimum gap.")
+
+                ConceptExplainer(
+                    title: "Frame & Alignment",
+                    explanation: "The .frame() modifier sets size constraints on a view. Use fixed values (.frame(width: 100)) for exact sizes, or maxWidth/maxHeight for flexible sizing. The alignment parameter controls where content sits within the frame.",
+                    whyItMatters: "Understanding frame is key to controlling view sizes. The common pattern .frame(maxWidth: .infinity) makes a view expand to fill its container — essential for full-width buttons and cards.",
+                    whenToUse: "Use fixed frames for icons and badges. Use maxWidth: .infinity for full-width elements. Combine with alignment for precise positioning.",
+                    color: lessonColor
+                )
                 frameAndAlignment
+
+                ConceptExplainer(
+                    title: "GeometryReader",
+                    explanation: "GeometryReader gives you the exact size and position of its container through a GeometryProxy. This lets you create proportional layouts (e.g., '30% of parent width'). However, it changes layout behavior — it always expands to fill available space.",
+                    whyItMatters: "Sometimes you need to know a container's size to create responsive layouts. GeometryReader is the tool for this, but it should be used sparingly.",
+                    whenToUse: "Use for proportional sizing, reading scroll positions, or container-relative positioning. Avoid when standard layout tools (stacks, padding, frame) can achieve the same result.",
+                    color: lessonColor
+                )
                 geometryReaderSection
+                TipBox(style: .mistake, content: "Common mistake: Using GeometryReader when .frame(maxWidth: .infinity) would suffice. GeometryReader is greedy and changes layout behavior. Try simpler tools first.")
+
+                ConceptExplainer(
+                    title: "LazyVGrid",
+                    explanation: "LazyVGrid creates grid layouts using column definitions (GridItem). 'Lazy' means it only creates views that are currently visible — important for performance with large datasets. You define columns as .flexible(), .fixed(width), or .adaptive(minimum:).",
+                    whyItMatters: "Grids are essential for photo galleries, icon grids, dashboards, and any collection display. The lazy loading means you can have thousands of items without memory issues.",
+                    whenToUse: "Use for collections displayed in grid form. Use .flexible() columns for equal-width cells, .adaptive(minimum:) for automatic column count based on available width.",
+                    color: lessonColor
+                )
                 gridSection
+                TipBox(style: .tip, content: "Use GridItem(.adaptive(minimum: 80)) to let SwiftUI automatically determine the number of columns based on screen width — perfect for responsive layouts on iPhone and iPad.")
+
+                takeaways
+                miniQuiz
                 completeButton
             }
             .padding(.horizontal)
@@ -51,6 +99,21 @@ struct Day2LayoutView: View {
                 .foregroundStyle(.secondary)
         }
         .padding(.top)
+    }
+
+    private var objectiveSection: some View {
+        LessonObjectiveView(
+            day: 2,
+            title: "Master SwiftUI's layout system to build any screen",
+            objectives: [
+                "Arrange views with VStack, HStack, and ZStack",
+                "Control whitespace with Spacer and padding",
+                "Set view sizes with frame and alignment",
+                "Build responsive grids with LazyVGrid",
+            ],
+            estimatedMinutes: 10,
+            color: lessonColor
+        )
     }
 
     // MARK: - Stacks Playground
@@ -277,6 +340,51 @@ struct Day2LayoutView: View {
                 """, title: "LazyVGrid.swift")
             }
         }
+    }
+
+    // MARK: - Takeaways
+
+    private var takeaways: some View {
+        KeyTakeawaysView(
+            takeaways: [
+                "VStack = vertical, HStack = horizontal, ZStack = layered — nest them for any layout",
+                "Spacer expands to fill available space — use it to push views apart",
+                ".padding() adds breathing room; .frame() sets size constraints",
+                ".frame(maxWidth: .infinity) is the pattern for full-width elements",
+                "GeometryReader is powerful but greedy — prefer simpler layout tools when possible",
+                "LazyVGrid with GridItem columns creates performant, responsive grids",
+            ],
+            color: lessonColor
+        )
+    }
+
+    // MARK: - Mini Quiz
+
+    private var miniQuiz: some View {
+        MiniQuizView(
+            title: "Check Your Understanding",
+            questions: [
+                MiniQuizQuestion(
+                    question: "You want three buttons in a row. Which stack should you use?",
+                    options: ["VStack", "HStack", "ZStack", "LazyVGrid"],
+                    correctIndex: 1,
+                    explanation: "HStack arranges children horizontally in a row. VStack is for vertical stacking, ZStack for layering."
+                ),
+                MiniQuizQuestion(
+                    question: "What happens if you put a single Spacer() between two Text views in an HStack?",
+                    options: ["Nothing visible changes", "The texts are pushed to opposite edges", "The spacer has fixed 8pt width", "It crashes"],
+                    correctIndex: 1,
+                    explanation: "Spacer expands to fill all available space, pushing the two Text views to the leading and trailing edges of the HStack."
+                ),
+                MiniQuizQuestion(
+                    question: "When is GeometryReader the WRONG choice?",
+                    options: ["When you need proportional widths", "When .frame(maxWidth: .infinity) would work just as well", "When reading scroll position", "When adapting to container size"],
+                    correctIndex: 1,
+                    explanation: "GeometryReader is overkill for simple full-width layouts. Use .frame(maxWidth: .infinity) instead — it's simpler and doesn't change layout behavior."
+                ),
+            ],
+            color: lessonColor
+        )
     }
 
     // MARK: - Complete

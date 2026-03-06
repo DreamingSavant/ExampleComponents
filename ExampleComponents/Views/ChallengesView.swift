@@ -26,13 +26,15 @@ struct ChallengesView: View {
     private var daySelector: some View {
         ScrollView {
             VStack(spacing: 16) {
-                Text("Choose a Topic")
-                    .font(.title2.bold())
-                    .padding(.top)
+                VStack(spacing: 6) {
+                    Text("Test Your Knowledge")
+                        .font(.title2.bold())
+                        .padding(.top)
 
-                Text("Test your knowledge for each day's lesson")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    Text("7 questions per day — can you ace them all?")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
 
                 allChallengesButton
 
@@ -75,6 +77,10 @@ struct ChallengesView: View {
 
     private func dayCard(_ lesson: Lesson) -> some View {
         let dayCount = Challenge.allChallenges.filter { $0.lessonDay == lesson.day }.count
+        let completedCount = Challenge.allChallenges
+            .filter { $0.lessonDay == lesson.day && appVM.userProgress.isChallengeComplete($0.id) }
+            .count
+
         return Button {
             challengeVM = ChallengeViewModel(forDay: lesson.day)
         } label: {
@@ -90,9 +96,17 @@ struct ChallengesView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
-                Text("\(dayCount) Qs")
-                    .font(.caption2.bold())
-                    .foregroundStyle(DojoTheme.color(for: lesson.color))
+                HStack(spacing: 4) {
+                    Text("\(dayCount) Qs")
+                        .font(.caption2.bold())
+                        .foregroundStyle(DojoTheme.color(for: lesson.color))
+
+                    if completedCount > 0 {
+                        Text("(\(completedCount) done)")
+                            .font(.caption2)
+                            .foregroundStyle(.green)
+                    }
+                }
             }
             .frame(maxWidth: .infinity)
             .padding()
@@ -108,12 +122,23 @@ struct ChallengesView: View {
             progressBar
 
             ScrollView {
-                ChallengeCardView(
-                    challenge: challenge,
-                    selectedAnswer: challengeVM.selectedAnswer,
-                    hasAnswered: challengeVM.hasAnswered,
-                    onSelectAnswer: { challengeVM.selectAnswer($0) }
-                )
+                VStack(spacing: 12) {
+                    if challenge.questionType != .concept {
+                        Text(challenge.questionType.rawValue)
+                            .font(.caption2.bold())
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Capsule().fill(Color.purple.opacity(0.15)))
+                            .foregroundStyle(.purple)
+                    }
+
+                    ChallengeCardView(
+                        challenge: challenge,
+                        selectedAnswer: challengeVM.selectedAnswer,
+                        hasAnswered: challengeVM.hasAnswered,
+                        onSelectAnswer: { challengeVM.selectAnswer($0) }
+                    )
+                }
                 .padding(.horizontal)
             }
 

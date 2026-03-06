@@ -4,9 +4,7 @@ struct Day4ListsNavigationView: View {
     @Environment(AppViewModel.self) private var appVM
 
     @State private var searchText = ""
-    @State private var showBasicList = true
     @State private var expandedSection = true
-    @State private var multiSelection = Set<String>()
     @State private var demoItems = [
         DemoItem(name: "SwiftUI", icon: "swift", color: .orange),
         DemoItem(name: "UIKit", icon: "iphone", color: .blue),
@@ -15,8 +13,6 @@ struct Day4ListsNavigationView: View {
         DemoItem(name: "WidgetKit", icon: "rectangle.3.group", color: .pink),
         DemoItem(name: "ARKit", icon: "arkit", color: .teal),
     ]
-
-    @State private var scrollTarget: Int? = nil
     @State private var tabSelection = 0
 
     private let lessonColor = DojoTheme.color(for: "lessonOrange")
@@ -30,15 +26,70 @@ struct Day4ListsNavigationView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 28) {
+            VStack(spacing: 24) {
                 header
+                objectiveSection
+
+                ConceptExplainer(
+                    title: "List: SwiftUI's Data Workhorse",
+                    explanation: "List is the standard way to display scrollable rows of data. It provides built-in features for free: cell reuse (performance), swipe actions, edit mode (delete/reorder), selection, and section headers. Under the hood, it's backed by UITableView on iOS.",
+                    whyItMatters: "Most apps have at least one List screen (settings, messages, contacts). List gives you professional-quality behavior without manual implementation. Understanding when to use List vs ScrollView is a key architectural decision.",
+                    whenToUse: "Use List for data-driven rows where you want built-in features (swipe, edit, select). Use ScrollView + LazyVStack for custom layouts that don't need List's features.",
+                    color: lessonColor
+                )
                 listSection
+                TipBox(style: .tip, content: "Use .listStyle(.plain) for edge-to-edge rows, .insetGrouped for the iOS Settings look, and .sidebar for iPad navigation columns.")
+
+                ConceptExplainer(
+                    title: "Section & DisclosureGroup",
+                    explanation: "Section groups rows under headers/footers within a List. DisclosureGroup creates collapsible sections that expand/collapse on tap. Both help organize complex data into digestible groups.",
+                    whyItMatters: "Good information architecture separates great apps from mediocre ones. Sections and disclosure groups let you organize dense content (like settings screens) into scannable groups.",
+                    whenToUse: "Use Section in Lists for grouped headers. Use DisclosureGroup for collapsible content, FAQ sections, and expandable details.",
+                    color: lessonColor
+                )
                 sectionAndDisclosure
+
+                ConceptExplainer(
+                    title: "Swipe Actions",
+                    explanation: "Swipe actions add custom buttons that appear when the user swipes a row. You can add actions on both leading and trailing edges. This is the standard iOS pattern for quick actions like delete, flag, or archive.",
+                    whyItMatters: "Swipe actions are an expected iOS interaction pattern. Users intuitively swipe to delete in Mail, Messages, and most apps. Not supporting this makes your app feel incomplete.",
+                    whenToUse: "Use on List rows for quick actions (delete, flag, archive). .onDelete on ForEach is the simpler API for delete-only. .swipeActions gives full control.",
+                    color: lessonColor
+                )
                 swipeActionsSection
+
+                ConceptExplainer(
+                    title: "ScrollView",
+                    explanation: "ScrollView creates a scrollable region. Unlike List, it doesn't provide cell reuse or built-in features — you get full control over layout. Use LazyVStack or LazyHStack inside for performance with large datasets.",
+                    whyItMatters: "ScrollView is the foundation for custom scrollable layouts. Combined with Lazy stacks, it handles any scrollable UI that doesn't fit the List model (horizontal carousels, custom cards, mixed content).",
+                    whenToUse: "Use ScrollView for custom scrollable layouts, horizontal carousels, and pages. Pair with LazyVStack/LazyHStack for performance with many items.",
+                    color: lessonColor
+                )
                 scrollViewSection
+                TipBox(style: .warning, content: "Always use LazyVStack (not VStack) inside ScrollView for long lists. VStack creates ALL views immediately; LazyVStack only creates visible ones. This matters for performance with 100+ items.")
+
+                ConceptExplainer(
+                    title: "TabView (Page Style)",
+                    explanation: "TabView with .tabViewStyle(.page) creates swipeable pages — like an onboarding flow or image carousel. Each child becomes a page. The page indicator dots appear automatically.",
+                    whyItMatters: "Page-style TabViews are the standard pattern for onboarding screens, image galleries, and tutorial walkthroughs. It's built-in and requires minimal code.",
+                    whenToUse: "Use for onboarding flows, image carousels, and any swipeable page content. For the app's main tab bar, use TabView with Tab items instead.",
+                    color: lessonColor
+                )
                 tabViewSection
+
+                ConceptExplainer(
+                    title: "NavigationStack: Modern Navigation",
+                    explanation: "NavigationStack (iOS 16+) replaces the deprecated NavigationView. It uses value-based, type-safe navigation with .navigationDestination(for:). This means you push data values, not views, making navigation programmatically controllable.",
+                    whyItMatters: "Type-safe navigation prevents crashes and enables deep linking. With NavigationPath, you can programmatically push/pop screens, save/restore navigation state, and handle universal links.",
+                    whenToUse: "Use NavigationStack for any drill-down navigation (master-detail). Always prefer it over NavigationView (deprecated). Use NavigationSplitView for sidebar-based iPad layouts.",
+                    color: lessonColor
+                )
                 searchableSection
                 navigationSection
+                TipBox(style: .mistake, content: "Common mistake: Still using NavigationView. It's deprecated since iOS 16. NavigationStack offers value-based navigation, programmatic control, and better performance.")
+
+                takeaways
+                miniQuiz
                 completeButton
             }
             .padding(.horizontal)
@@ -64,6 +115,21 @@ struct Day4ListsNavigationView: View {
                 .multilineTextAlignment(.center)
         }
         .padding(.top)
+    }
+
+    private var objectiveSection: some View {
+        LessonObjectiveView(
+            day: 4,
+            title: "Build data-driven screens with lists, scroll views, and navigation",
+            objectives: [
+                "Display data with List and its built-in features",
+                "Organize content with Section and DisclosureGroup",
+                "Add swipe actions and search to lists",
+                "Navigate with NavigationStack and value-based routing",
+            ],
+            estimatedMinutes: 10,
+            color: lessonColor
+        )
     }
 
     // MARK: - List
@@ -242,7 +308,7 @@ struct Day4ListsNavigationView: View {
     // MARK: - TabView
 
     private var tabViewSection: some View {
-        ComponentShowcase(title: "TabView", description: "Page-style tabs and tab bars", color: lessonColor) {
+        ComponentShowcase(title: "TabView (Page Style)", description: "Swipeable pages", color: lessonColor) {
             VStack(spacing: 12) {
                 TabView(selection: $tabSelection) {
                     RoundedRectangle(cornerRadius: 12)
@@ -356,6 +422,51 @@ struct Day4ListsNavigationView: View {
                 """, title: "NavigationStack.swift")
             }
         }
+    }
+
+    // MARK: - Takeaways
+
+    private var takeaways: some View {
+        KeyTakeawaysView(
+            takeaways: [
+                "List provides swipe, delete, reorder, and selection for free — use it for data rows",
+                "ScrollView + LazyVStack for custom layouts that don't need List features",
+                "Section and DisclosureGroup organize complex data into scannable groups",
+                "NavigationStack with .navigationDestination is the modern, type-safe navigation pattern",
+                ".searchable() adds a native search bar — no custom TextField needed",
+                "Always use LazyVStack inside ScrollView for performance with many items",
+            ],
+            color: lessonColor
+        )
+    }
+
+    // MARK: - Mini Quiz
+
+    private var miniQuiz: some View {
+        MiniQuizView(
+            title: "Check Your Understanding",
+            questions: [
+                MiniQuizQuestion(
+                    question: "You're building a settings screen with grouped rows. Which should you use?",
+                    options: ["ScrollView + VStack", "List with .insetGrouped style", "LazyVGrid", "TabView"],
+                    correctIndex: 1,
+                    explanation: "List with .insetGrouped style gives you the standard iOS Settings appearance with grouped sections, automatic styling, and built-in features."
+                ),
+                MiniQuizQuestion(
+                    question: "Why is NavigationStack preferred over NavigationView?",
+                    options: ["It's faster", "It supports value-based, type-safe navigation with programmatic control", "It has more animations", "NavigationView still works fine"],
+                    correctIndex: 1,
+                    explanation: "NavigationStack uses value types for routing, supports NavigationPath for programmatic control, and enables deep linking. NavigationView is deprecated."
+                ),
+                MiniQuizQuestion(
+                    question: "What's the performance difference between VStack and LazyVStack inside a ScrollView?",
+                    options: ["No difference", "VStack creates all views upfront; LazyVStack only creates visible ones", "LazyVStack is slower", "VStack doesn't work in ScrollView"],
+                    correctIndex: 1,
+                    explanation: "LazyVStack defers view creation until they're about to appear on screen. With 1000+ items, this prevents huge memory usage and slow initial load."
+                ),
+            ],
+            color: lessonColor
+        )
     }
 
     // MARK: - Complete

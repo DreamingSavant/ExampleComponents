@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ProfileView: View {
     @Environment(AppViewModel.self) private var appVM
+    @State private var showResetConfirmation = false
 
     var body: some View {
         NavigationStack {
@@ -18,6 +19,16 @@ struct ProfileView: View {
             }
             .background(DojoTheme.surfaceBackground)
             .navigationTitle("Profile")
+            .alert("Reset All Progress?", isPresented: $showResetConfirmation) {
+                Button("Cancel", role: .cancel) {}
+                Button("Reset", role: .destructive) {
+                    withAnimation {
+                        appVM.userProgress.resetAll()
+                    }
+                }
+            } message: {
+                Text("This will clear all lesson completions, challenge scores, and quiz progress. This cannot be undone.")
+            }
         }
     }
 
@@ -37,7 +48,7 @@ struct ProfileView: View {
             Text(appVM.userProgress.masteryTitle)
                 .font(.title.bold())
 
-            Text("Keep going — consistency is key!")
+            Text("\(appVM.userProgress.xpPoints) XP earned")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
@@ -93,9 +104,9 @@ struct ProfileView: View {
     private var statsGrid: some View {
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
             statTile(icon: "flame.fill", label: "Current Streak", value: "\(appVM.userProgress.currentStreak) days", color: .orange)
-            statTile(icon: "clock.fill", label: "Total Time", value: "\(appVM.userProgress.totalTimeSpentMinutes) min", color: .blue)
-            statTile(icon: "star.fill", label: "Mastery Level", value: appVM.userProgress.masteryTitle, color: .purple)
-            statTile(icon: "trophy.fill", label: "Challenges Won", value: "\(appVM.userProgress.completedChallenges.count)", color: .yellow)
+            statTile(icon: "star.fill", label: "XP Points", value: "\(appVM.userProgress.xpPoints)", color: .yellow)
+            statTile(icon: "brain.fill", label: "Mastery Level", value: appVM.userProgress.masteryTitle, color: .purple)
+            statTile(icon: "trophy.fill", label: "Challenges Won", value: "\(appVM.userProgress.completedChallenges.count)", color: .blue)
         }
     }
 
@@ -152,9 +163,7 @@ struct ProfileView: View {
 
     private var resetSection: some View {
         Button(role: .destructive) {
-            withAnimation {
-                appVM.userProgress = UserProgress()
-            }
+            showResetConfirmation = true
         } label: {
             Label("Reset All Progress", systemImage: "arrow.counterclockwise")
                 .font(.subheadline)

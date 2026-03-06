@@ -22,13 +22,61 @@ struct Day1FoundationsView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 28) {
+            VStack(spacing: 24) {
                 header
+                objectiveSection
+
+                ConceptExplainer(
+                    title: "Understanding Text",
+                    explanation: "Text is the most fundamental view in SwiftUI. Unlike UILabel in UIKit, it's a lightweight value type — every modifier you chain returns a new modified copy. This makes Text composable and predictable.",
+                    whyItMatters: "Every app displays text. Mastering Text and its modifiers is the foundation for all SwiftUI styling. The patterns you learn here (chaining modifiers) apply to every SwiftUI view.",
+                    whenToUse: "Use Text for any static or dynamic text. For user input, use TextField or TextEditor instead.",
+                    color: lessonColor
+                )
                 textSection
+                TipBox(style: .mistake, content: "Don't use .foregroundColor() — it's deprecated in iOS 17. Always use .foregroundStyle(), which supports colors, gradients, and any ShapeStyle.")
+
+                ConceptExplainer(
+                    title: "The Font System",
+                    explanation: "SwiftUI provides semantic font styles (.title, .body, .caption) that automatically scale with the user's Dynamic Type settings. This means your app is accessible by default — if a user increases their text size in Settings, your text responds.",
+                    whyItMatters: "Hardcoding font sizes breaks accessibility. Semantic fonts ensure your app works for everyone, from low-vision users to those who prefer compact text.",
+                    whenToUse: "Always prefer semantic fonts (.title, .body, .caption) over .system(size:). Use fixed sizes only for decorative elements that shouldn't scale.",
+                    color: lessonColor
+                )
                 fontShowcase
+                TipBox(style: .tip, content: "You can combine semantic fonts with weight: Text(\"Hello\").font(.title.bold()). This preserves Dynamic Type scaling while customizing weight.")
+
+                ConceptExplainer(
+                    title: "SF Symbols & Images",
+                    explanation: "SF Symbols is Apple's library of 6,000+ vector icons designed to work seamlessly with San Francisco (the system font). They scale with Dynamic Type, support multiple rendering modes, and look native on all Apple platforms.",
+                    whyItMatters: "Using SF Symbols instead of custom images means your icons automatically match the system style, support accessibility, and don't require image assets.",
+                    whenToUse: "Use SF Symbols for standard UI icons (settings, search, heart, etc.). Use custom Image assets for brand-specific graphics or photos.",
+                    color: lessonColor
+                )
                 imageAndSymbolsSection
+                TipBox(style: .info, content: "Download the SF Symbols app from Apple to browse all available symbols, test rendering modes, and find the perfect icon for your UI.")
+
+                ConceptExplainer(
+                    title: "Label = Icon + Text (Smart)",
+                    explanation: "Label combines an icon and text into a single semantic component. The key advantage over HStack { Image; Text } is that Label adapts its layout to context — in a toolbar it might show only the icon, in a list it shows both.",
+                    whyItMatters: "Using Label instead of manually combining Image and Text gives SwiftUI the freedom to optimize the presentation for each context, improving consistency and accessibility.",
+                    whenToUse: "Use Label whenever you have an icon paired with descriptive text. Use it in List rows, toolbar items, and buttons.",
+                    color: lessonColor
+                )
                 labelsSection
+
+                ConceptExplainer(
+                    title: "Colors & Gradients",
+                    explanation: "SwiftUI's Color type adapts to light and dark mode automatically when you use system colors (.primary, .secondary) or asset catalog colors. Gradients (Linear, Radial, Angular) add visual richness and can be applied anywhere a ShapeStyle is expected.",
+                    whyItMatters: "Understanding the color system helps you build apps that look great in both light and dark mode without extra work. Gradients are essential for modern, polished UI design.",
+                    whenToUse: "Use system colors for text and backgrounds (automatic dark mode). Use gradients on backgrounds, buttons, and decorative elements for visual polish.",
+                    color: lessonColor
+                )
                 colorsAndGradientsSection
+                TipBox(style: .warning, content: "Avoid hardcoding Color(.white) or Color(.black) for text backgrounds — they won't adapt to dark mode. Use Color(.systemBackground) and .primary instead.")
+
+                takeaways
+                miniQuiz
                 completeButton
             }
             .padding(.horizontal)
@@ -56,6 +104,23 @@ struct Day1FoundationsView: View {
                 .multilineTextAlignment(.center)
         }
         .padding(.top)
+    }
+
+    // MARK: - Objective
+
+    private var objectiveSection: some View {
+        LessonObjectiveView(
+            day: 1,
+            title: "Build a solid foundation with SwiftUI's core display views",
+            objectives: [
+                "Style and customize Text with modifiers",
+                "Use SF Symbols and understand rendering modes",
+                "Create Labels that adapt to context",
+                "Apply colors and gradients to any view",
+            ],
+            estimatedMinutes: 10,
+            color: lessonColor
+        )
     }
 
     // MARK: - Text Section
@@ -238,23 +303,17 @@ struct Day1FoundationsView: View {
                 }
 
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(
-                        LinearGradient(colors: [.purple, .blue, .teal], startPoint: .leading, endPoint: .trailing)
-                    )
+                    .fill(LinearGradient(colors: [.purple, .blue, .teal], startPoint: .leading, endPoint: .trailing))
                     .frame(height: 50)
                     .overlay(Text("LinearGradient").font(.caption.bold()).foregroundStyle(.white))
 
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(
-                        RadialGradient(colors: [.yellow, .orange, .red], center: .center, startRadius: 5, endRadius: 80)
-                    )
+                    .fill(RadialGradient(colors: [.yellow, .orange, .red], center: .center, startRadius: 5, endRadius: 80))
                     .frame(height: 50)
                     .overlay(Text("RadialGradient").font(.caption.bold()).foregroundStyle(.white))
 
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(
-                        AngularGradient(colors: [.red, .yellow, .green, .blue, .purple, .red], center: .center)
-                    )
+                    .fill(AngularGradient(colors: [.red, .yellow, .green, .blue, .purple, .red], center: .center))
                     .frame(height: 50)
                     .overlay(Text("AngularGradient").font(.caption.bold()).foregroundStyle(.white))
 
@@ -267,6 +326,51 @@ struct Day1FoundationsView: View {
                 """, title: "Gradients.swift")
             }
         }
+    }
+
+    // MARK: - Takeaways
+
+    private var takeaways: some View {
+        KeyTakeawaysView(
+            takeaways: [
+                "Text is your most-used view — chain modifiers to customize it",
+                "Use semantic font styles (.title, .body) for automatic accessibility",
+                "SF Symbols give you 6,000+ free icons that scale with text",
+                "Label adapts its layout to context — smarter than HStack { Image; Text }",
+                "Use .foregroundStyle() (not deprecated .foregroundColor()) for colors and gradients",
+                "Define custom colors in asset catalogs for automatic dark mode support",
+            ],
+            color: lessonColor
+        )
+    }
+
+    // MARK: - Mini Quiz
+
+    private var miniQuiz: some View {
+        MiniQuizView(
+            title: "Check Your Understanding",
+            questions: [
+                MiniQuizQuestion(
+                    question: "Why should you prefer .font(.title) over .font(.system(size: 28))?",
+                    options: [".title looks better", ".title adapts to Dynamic Type accessibility settings", ".title is faster to render", "No real difference"],
+                    correctIndex: 1,
+                    explanation: "Semantic fonts like .title automatically scale with the user's Dynamic Type preference, making your app accessible. Fixed sizes don't scale."
+                ),
+                MiniQuizQuestion(
+                    question: "What advantage does Label have over HStack { Image(systemName:); Text() }?",
+                    options: ["Label is smaller code", "Label adapts its presentation to context (toolbars show icon only, lists show both)", "Label is animated", "Label supports more icons"],
+                    correctIndex: 1,
+                    explanation: "Label is a semantic component — SwiftUI can decide the best presentation based on context. In a compact toolbar, it may hide the text. HStack always renders everything."
+                ),
+                MiniQuizQuestion(
+                    question: "Which gradient type creates a circular color spread from a center point?",
+                    options: ["LinearGradient", "AngularGradient", "RadialGradient", "ConicalGradient"],
+                    correctIndex: 2,
+                    explanation: "RadialGradient radiates colors outward from a center point. LinearGradient goes in a direction. AngularGradient sweeps around a center like a conic section."
+                ),
+            ],
+            color: lessonColor
+        )
     }
 
     // MARK: - Complete

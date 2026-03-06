@@ -20,6 +20,10 @@ struct ContentView: View {
                 ChallengesView()
             }
 
+            Tab("Reference", systemImage: "text.book.closed.fill", value: .reference) {
+                ReferenceView()
+            }
+
             Tab("Profile", systemImage: "person.fill", value: .profile) {
                 ProfileView()
             }
